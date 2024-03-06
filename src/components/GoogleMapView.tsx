@@ -31,7 +31,7 @@ function GoogleMapView() {
     return (
         <div>
             <LoadScript
-                googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
+                googleMapsApiKey={'AIzaSyC_27XthaxdqKP1Yj2og967R3LSCb5b9l8'}
             >
                 <GoogleMap 
                     mapContainerStyle={containerStyle}
