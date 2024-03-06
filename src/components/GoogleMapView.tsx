@@ -1,10 +1,17 @@
-import { Marker, GoogleMap, LoadScript } from '@react-google-maps/api'
-import React, { useEffect } from 'react'
+import { Marker, GoogleMap, LoadScript, InfoWindow } from '@react-google-maps/api'
+import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient';
 import mapStyles from '../lib/mapStyles.json';
 
+interface MarkerData {
+    latitude: number;
+    longitude: number; 
+} 
+
 function GoogleMapView() {
     const [markersData, setMarkersData] = React.useState<{ latitude: any; longitude: any; }[]>([]);
+    const [selectedMarker, setSelectedMarker] = useState<MarkerData | null>(null);
+
     
     useEffect(() => {
         const fetchData = async () => {
@@ -22,8 +29,6 @@ function GoogleMapView() {
         fetchData();
     }, []);
 
-    // const [markersData, setMarkersData] = React.useState([]);
-    
     const containerStyle = {
         height: "100vh",
         width: "100vw"
@@ -41,18 +46,36 @@ function GoogleMapView() {
                         styles: mapStyles  
                     }}
                 >
-                    { /* Child components, such as markers, info windows, etc. */ }
-                    { /* use response from supabase query to render markers */}
                     {markersData.map((marker, index) => (
                         <Marker 
-                        key={index} // Or a unique ID from your Supabase data
-                        position={{ lat: marker.latitude, lng: marker.longitude }} 
-                        icon={{
-                            url: 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/x-social-media-white-round-icon.png', // Or your direct image URL
-                            scaledSize: new window.google.maps.Size(30, 30), // Optional: Adjust the size
-                        }}
+                            key={index} 
+                            position={{ lat: marker.latitude, lng: marker.longitude }} 
+                            icon={{
+                                url: 'https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/x-social-media-white-round-icon.png',
+                                scaledSize: new window.google.maps.Size(30, 30),
+                            }}
+                            onClick={() => {
+                                if (marker)
+                                    setSelectedMarker(marker);
+                                else
+                                    setSelectedMarker(null);
+                            }}
                         />
                     ))}
+
+                    {selectedMarker && (
+                        <InfoWindow
+                            position={{ lat: (selectedMarker as { latitude: number; longitude: number; }).latitude, lng: (selectedMarker as { latitude: number; longitude: number; }).longitude }}
+                            onCloseClick={() => {
+                                setSelectedMarker(null);
+                            }}
+                        >
+                            <div>
+                                <h2>Tweet-style popup</h2>
+                                <p>This is your selected marker!</p>
+                            </div>
+                        </InfoWindow>
+                    )}
                 </GoogleMap>
             </LoadScript>
         </div>
